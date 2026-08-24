@@ -3,328 +3,518 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LostNote — Write it before you lose it</title>
-<meta name="description" content="Offline-first notes for Android & Windows. Photos, colors, PDF export, PIN-locked archive, and phone ↔ PC sync with zero servers. Free, private, no BS.">
+<title>LostNote — write it before you lose it</title>
+<meta name="description" content="Offline-first notes for Android & Windows. Photos, colors, PDF export, PIN-locked archive, and phone ↔ PC sync with zero servers.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Space+Grotesk:wght@400;500;600;700&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#07060a;--surface:#0e0c14;--surface2:#16121f;--accent:#8b5cf6;--deep:#6d28d9;--lav:#c4b5fd;--cyan:#22d3ee;--green:#34d399;--pink:#f472b6;--orange:#fb923c;--text:#eceaf2;--text2:#8d8699;--text3:#575061;--border:rgba(139,92,246,.12);--card:rgba(16,13,24,.85);--glass:rgba(16,13,24,.6)}
+:root{
+  --ink:#0c0a10;--ink2:#14101b;--line:rgba(243,238,230,.08);
+  --paper:#f3eee4;--paper2:#eae3d4;--ink-on-paper:#191420;
+  --vio:#7c3aed;--lav:#a78bfa;--lilac:#d8ccf6;
+  --amber:#f4b860;--mint:#8ee0b8;--rose:#f49bb0;
+  --tx:#efeaf6;--tx2:#9b93ab;--tx3:#5f586e;
+}
 html{scroll-behavior:smooth}
-body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;line-height:1.6}
-body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;background:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3C/feTurbulence%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");opacity:.02}
-#progress{position:fixed;top:0;left:0;height:2px;width:0;background:linear-gradient(90deg,var(--lav),var(--accent),var(--pink));z-index:10001;transition:width .3s}
-#pc{position:fixed;inset:0;z-index:0;pointer-events:none}
-nav{position:fixed;top:0;left:0;right:0;z-index:1000;height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(16px,4vw,28px);transition:all .3s;border-bottom:1px solid transparent}
-nav.solid{background:rgba(7,6,10,.92);backdrop-filter:blur(24px);border-bottom-color:var(--border)}
-.nav-brand{display:flex;align-items:center;gap:10px;text-decoration:none}
-.nav-icon{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,var(--deep),var(--accent) 55%,var(--lav));display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;color:#fff;font-family:'Inter'}
-.nav-name{font-size:17px;font-weight:800;letter-spacing:-.3px}
-.nav-links{display:flex;gap:6px;align-items:center}
-.nav-links a{padding:7px 14px;border-radius:8px;font-size:13px;font-weight:500;color:var(--text2);text-decoration:none;transition:.2s}
-.nav-links a:hover{color:var(--text);background:rgba(255,255,255,.04)}
-.nav-dl{padding:8px 20px;border-radius:10px;font-size:13px;font-weight:600;background:linear-gradient(135deg,var(--deep),var(--accent));color:#fff!important;box-shadow:0 2px 14px rgba(109,40,217,.35)}
-.nav-dl:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(139,92,246,.45)}
-.hamburger{display:none;background:none;border:none;color:var(--text);cursor:pointer;padding:8px}
-.hamburger span{display:block;width:20px;height:2px;background:var(--text);margin:4px 0;border-radius:2px}
-#mnav{display:none;position:fixed;top:60px;left:0;right:0;z-index:999;background:rgba(7,6,10,.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:12px 20px 20px}
-#mnav.open{display:block}
-#mnav a{display:block;padding:12px 14px;border-radius:10px;font-size:15px;color:var(--text2);text-decoration:none;margin-bottom:4px}
-.sec{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:90px 24px 60px}
-.sr{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease}
-.sr.vis{opacity:1;transform:none}
-.grad{background:linear-gradient(135deg,var(--lav),var(--accent) 45%,var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.btn{display:inline-flex;align-items:center;gap:8px;padding:14px 32px;border-radius:12px;font-size:15px;font-weight:600;text-decoration:none;transition:.25s;border:none}
-.btn-fill{background:linear-gradient(135deg,var(--deep),var(--accent));color:#fff}
-.btn-fill:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(124,58,237,.4)}
-.btn-ghost{background:rgba(255,255,255,.04);color:var(--text);border:1px solid var(--border)}
-.btn-ghost:hover{background:rgba(255,255,255,.08);border-color:var(--accent)}
-.hero{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:110px 24px 60px;overflow:hidden}
-.hero-glow{position:absolute;border-radius:50%;filter:blur(90px);opacity:.16}
-.hero-glow.a{width:520px;height:520px;background:var(--deep);top:-12%;left:-6%}
-.hero-glow.b{width:420px;height:420px;background:var(--pink);bottom:-4%;right:-6%;opacity:.09}
-.hero-glow.c{width:340px;height:340px;background:var(--lav);top:38%;left:52%;opacity:.07}
-.hero-inner{position:relative;z-index:1;max-width:820px}
-.hero-pill{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;border-radius:999px;border:1px solid var(--border);background:var(--glass);font-size:13px;color:var(--text2);margin-bottom:28px}
-.hero-pill code{font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--lav)}
-.live{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
-.hero h1{font-size:clamp(36px,6.4vw,68px);font-weight:900;line-height:1.08;letter-spacing:-1.8px;margin-bottom:20px}
-.hero-desc{font-size:clamp(15px,2vw,18px);color:var(--text2);line-height:1.7;margin:0 auto 34px;max-width:620px}
-.hero-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:48px}
-.hero-nums{display:flex;gap:44px;justify-content:center;flex-wrap:wrap}
-.hero-num .n{font-size:28px;font-weight:800}
-.hero-num .l{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:1.2px;margin-top:2px}
-.trust{position:relative;z-index:1;display:flex;justify-content:center;gap:clamp(18px,5vw,56px);flex-wrap:wrap;padding:26px 24px;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-top:-30px}
-.trust div{font-size:13px;color:var(--text3)}
-.trust b{color:var(--text);font-weight:700}
-.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
-h2.big{font-size:clamp(26px,3.5vw,38px);font-weight:800;line-height:1.15;letter-spacing:-.8px;margin-bottom:16px}
-.sub{text-align:center;color:var(--text2);font-size:15px;margin-bottom:40px}
-.about-text p{font-size:15px;color:var(--text2);line-height:1.75;margin-bottom:12px}
-.callout{margin-top:20px;padding:16px 20px;border-radius:12px;border:1px solid var(--border);background:rgba(139,92,246,.05);font-size:13px;color:var(--text2);line-height:1.7}
-.callout strong{color:var(--text)}
-.about-visual{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.about-stat{padding:22px 16px;border-radius:14px;border:1px solid var(--border);background:var(--card);text-align:center}
-.about-stat .ico{font-size:24px;margin-bottom:8px}
-.about-stat .val{font-size:20px;font-weight:800}
-.about-stat .lbl{font-size:11px;color:var(--text3);margin-top:4px}
-.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:8px}
-.feat-card{padding:28px 24px;border-radius:16px;border:1px solid var(--border);background:var(--card);transition:.3s}
-.feat-card:hover{border-color:rgba(139,92,246,.3);transform:translateY(-4px);box-shadow:0 10px 36px rgba(0,0,0,.4)}
-.feat-ico{font-size:27px;margin-bottom:14px}
-.feat-card h3{font-size:16px;font-weight:700;margin-bottom:6px}
-.feat-card p{font-size:13px;color:var(--text2);line-height:1.65}
-.sync-wrap{display:grid;grid-template-columns:auto 1fr auto;gap:clamp(16px,4vw,40px);align-items:center;justify-items:center;margin:48px 0 30px}
-.device{position:relative}
-.phone{position:relative;width:250px;height:500px;border-radius:34px;border:2px solid rgba(139,92,246,.25);background:var(--surface);overflow:hidden;box-shadow:0 24px 70px rgba(0,0,0,.6),0 0 0 1px rgba(139,92,246,.1)}
-.notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:110px;height:22px;background:var(--bg);border-radius:0 0 14px 14px;z-index:5}
-.pscr{padding:34px 14px 54px;height:100%;overflow-y:auto;scrollbar-width:none}
-.pscr::-webkit-scrollbar{display:none}
-.phead{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-.phead .t{font-size:13px;font-weight:800}
-.pillrow{display:flex;gap:5px;margin-bottom:12px;overflow:hidden}
-.chip{flex-shrink:0;padding:4px 11px;border-radius:999px;font-size:9px;font-weight:600;border:1px solid var(--border);color:var(--text3)}
-.chip.on{background:linear-gradient(135deg,var(--deep),var(--accent));color:#fff;border-color:transparent}
-.ngrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.ncard{border-radius:13px;padding:11px;border:1px solid rgba(255,255,255,.07);min-height:86px}
-.ncard .nt{font-size:10px;font-weight:700;margin-bottom:4px}
-.ncard .nb{font-size:8px;color:rgba(255,255,255,.55);line-height:1.5}
-.ncard.locked{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px}
-.code-scr{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center}
-.code-scr .lbl{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:1.4px;margin-bottom:10px}
-.digits{display:flex;gap:6px;margin-bottom:14px}
-.dig{width:30px;height:38px;border-radius:9px;border:1px solid rgba(139,92,246,.4);background:var(--surface2);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono';font-size:16px;font-weight:700;color:var(--lav)}
-.pbar{width:82%;height:5px;border-radius:99px;background:var(--surface2);overflow:hidden;margin-bottom:8px}
-.pbar i{display:block;height:100%;width:72%;border-radius:99px;background:linear-gradient(90deg,var(--deep),var(--lav))}
-.code-scr .st{font-size:9px;color:var(--green)}
-.linkbeam{display:flex;flex-direction:column;align-items:center;gap:6px;z-index:2}
-.beam{width:clamp(60px,9vw,130px);height:2px;background:linear-gradient(90deg,var(--accent),var(--pink),var(--accent));background-size:200% 100%;animation:sweep 2.2s linear infinite;border-radius:2px}
-@keyframes sweep{to{background-position:-200% 0}}
-.codebig{font-family:'JetBrains Mono';font-size:clamp(18px,2.6vw,26px);font-weight:700;color:var(--lav);letter-spacing:4px;text-shadow:0 0 22px rgba(139,92,246,.55)}
-.codebig-lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1.6px}
-.monitor{width:100%;max-width:380px;border-radius:14px;border:2px solid rgba(139,92,246,.18);background:linear-gradient(145deg,var(--surface),var(--surface2));padding:10px;box-shadow:0 26px 70px rgba(0,0,0,.55)}
-.monscr{border-radius:9px;background:var(--bg);padding:16px;min-height:210px}
-.monhead{display:flex;align-items:center;gap:8px;margin-bottom:12px}
-.monlogo{width:20px;height:20px;border-radius:6px;background:linear-gradient(135deg,var(--deep),var(--accent));display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;color:#fff}
-montitle,.montitle{font-size:12px;font-weight:800}
-.monrow{padding:9px 10px;border-radius:9px;background:var(--surface2);border:1px solid var(--border);margin-bottom:7px}
-.monrow .rn{font-size:11px;font-weight:700}
-.monrow .rd{font-size:9px;color:var(--text3)}
-.monchin{width:100px;height:4px;border-radius:2px;background:rgba(255,255,255,.08);margin:8px auto 0}
-.monstand{width:54px;height:34px;margin:0 auto;background:rgba(255,255,255,.03);border-radius:0 0 4px 4px}
-.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;max-width:860px;margin:0 auto}
-.step{padding:22px;border-radius:15px;border:1px solid var(--border);background:var(--card);text-align:left}
-.step .sn{width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,var(--deep),var(--accent));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;margin-bottom:12px}
-.step h4{font-size:14px;font-weight:700;margin-bottom:4px}
-.step p{font-size:12px;color:var(--text2);line-height:1.6}
-.colors-strip{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
-.mini-note{width:118px;height:118px;border-radius:16px;padding:14px;border:1px solid rgba(255,255,255,.09);transition:.3s}
-.mini-note:hover{transform:translateY(-6px) rotate(-1deg)}
-.mini-note .t{font-size:12px;font-weight:700;margin-bottom:5px}
-.mini-note .b{font-size:10px;line-height:1.55;opacity:.62}
-.dl-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:720px;margin:0 auto}
-.dl-card{padding:34px 26px;border-radius:20px;border:1px solid var(--border);background:var(--card);text-align:center;position:relative;overflow:hidden;transition:.3s}
-.dl-card:hover{transform:translateY(-4px);border-color:rgba(139,92,246,.35)}
-.dl-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--deep),var(--lav))}
-.dl-card.pc::before{background:linear-gradient(90deg,var(--green),var(--cyan))}
-.dl-ico{font-size:38px;margin-bottom:12px}
-.dl-card h3{font-size:19px;font-weight:800;margin-bottom:4px}
-.dl-card p{font-size:12px;color:var(--text2);margin-bottom:14px}
-.dl-ver{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text3);margin-bottom:16px}
-.dl-card .btn{width:100%;justify-content:center}
-.dl-note{font-size:11px;color:var(--text3);margin-top:10px}
-footer{position:relative;z-index:1;text-align:center;padding:44px 24px;border-top:1px solid var(--border)}
-footer p{font-size:12px;color:var(--text3);margin-bottom:14px}
-footer a.lnk{color:var(--text2);text-decoration:none;font-size:12px;margin:0 10px}
-footer a.lnk:hover{color:var(--lav)}
-@media(max-width:960px){.feat-grid{grid-template-columns:1fr 1fr}.about-grid{grid-template-columns:1fr}.sync-wrap{grid-template-columns:1fr;justify-items:center}.linkbeam{flex-direction:row}.steps{grid-template-columns:1fr}.dl-grid{grid-template-columns:1fr}}
-@media(max-width:640px){.nav-links{display:none}.hamburger{display:block}.feat-grid{grid-template-columns:1fr}.hero{min-height:auto;padding:96px 16px 50px}.sec{padding:64px 16px 44px}.phone{width:230px;height:460px}.hero-nums{gap:26px}}
+body{background:var(--ink);color:var(--tx);font-family:'Space Grotesk',sans-serif;line-height:1.65;overflow-x:hidden}
+/* ruled notebook lines + margin */
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5;
+  background:
+    linear-gradient(90deg,transparent 54px,rgba(167,139,250,.07) 54px,rgba(167,139,250,.07) 55px,transparent 55px),
+    repeating-linear-gradient(180deg,transparent 0 34px,rgba(243,238,230,.032) 34px 35px)}
+::selection{background:var(--vio);color:#fff}
+h1,h2,h3,.serif{font-family:'Fraunces',serif}
+.hand{font-family:'Caveat',cursive}
+
+#bar{position:fixed;top:0;left:0;height:3px;width:0;background:linear-gradient(90deg,var(--amber),var(--rose),var(--lav));z-index:1000;transition:width .25s}
+nav{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:900;display:flex;align-items:center;gap:22px;padding:10px 12px 10px 18px;border-radius:999px;border:1px solid var(--line);background:rgba(12,10,16,.72);backdrop-filter:blur(18px);white-space:nowrap}
+nav a.brand{display:flex;align-items:center;gap:9px;text-decoration:none;color:var(--tx);font-weight:700;font-family:'Fraunces';font-size:17px;margin-right:6px}
+.logo{width:28px;height:28px;border-radius:8px;background:linear-gradient(140deg,var(--vio),var(--lav));display:grid;place-items:center;color:#fff;font-weight:900;font-size:15px;font-family:'Space Grotesk'}
+nav .lnk{color:var(--tx2);text-decoration:none;font-size:13.5px;padding:6px 11px;border-radius:99px;transition:.2s}
+nav .lnk:hover{color:var(--tx);background:rgba(255,255,255,.05)}
+nav .cta{background:var(--paper);color:var(--ink)!important;font-weight:600}
+nav .cta:hover{background:#fff}
+@media(max-width:760px){nav .lnk:not(.cta){display:none}}
+
+.wrap{position:relative;z-index:1;max-width:1140px;margin:0 auto;padding:0 26px}
+.kick{display:inline-flex;align-items:center;gap:9px;font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--tx2)}
+.kick i{width:26px;height:1px;background:var(--amber)}
+
+/* ---------- HERO ---------- */
+.hero{position:relative;min-height:100svh;display:grid;grid-template-columns:1.05fr .95fr;align-items:center;gap:30px;padding-top:110px;padding-bottom:40px}
+.hero h1{font-size:clamp(46px,7.2vw,96px);line-height:.98;font-weight:560;letter-spacing:-.02em;margin:20px 0 24px}
+.hero h1 em{font-style:italic;font-weight:400;color:var(--lav)}
+.hero h1 .ul{position:relative;white-space:nowrap}
+.hero h1 .ul svg{position:absolute;left:-2%;bottom:-.13em;width:104%;height:.32em}
+.hero p.lede{font-size:clamp(15px,1.6vw,18.5px);color:var(--tx2);max-width:520px;margin-bottom:34px}
+.hero p.lede b{color:var(--tx);font-weight:500}
+.btns{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+.b{display:inline-flex;align-items:center;gap:10px;text-decoration:none;font-weight:600;font-size:15px;padding:16px 30px;border-radius:14px;transition:.25s cubic-bezier(.2,.8,.2,1)}
+.b-p{background:linear-gradient(140deg,#8b5cf6,#6d28d9);color:#fff;box-shadow:0 10px 34px -10px rgba(124,58,237,.65)}
+.b-p:hover{transform:translateY(-3px);box-shadow:0 18px 44px -12px rgba(124,58,237,.75)}
+.b-g{border:1px solid rgba(243,238,230,.18);color:var(--tx)}
+.b-g:hover{border-color:var(--lav);transform:translateY(-3px)}
+.meta-row{margin-top:38px;display:flex;gap:26px;flex-wrap:wrap;font-size:12.5px;color:var(--tx3)}
+.meta-row b{color:var(--tx2);font-weight:500}
+
+/* playground */
+.stage{position:relative;height:min(74vh,640px);user-select:none;-webkit-user-select:none;touch-action:none}
+.hint{position:absolute;top:-4px;left:6%;font-size:19px;color:var(--tx3);transform:rotate(-4deg);z-index:1}
+.hint::after{content:'';display:block;width:70px;height:1px;background:var(--tx3);margin:2px auto 0;opacity:.5}
+.draggable{position:absolute;left:0;top:0;cursor:grab;will-change:transform;z-index:5}
+.draggable:active{cursor:grabbing}
+.dragging{transition:none!important}
+.floaty>.in{animation:bob 7s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(var(--r,0deg))}50%{transform:translateY(-12px) rotate(calc(var(--r,0deg)*-1))}}
+
+.phone{width:238px;border-radius:34px;background:linear-gradient(160deg,#1b1626,#100d18);border:1px solid rgba(216,204,246,.22);padding:10px;box-shadow:0 40px 90px -20px rgba(0,0,0,.85),0 0 0 1px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.06)}
+.scrn{border-radius:26px;background:#0b0910;overflow:hidden;position:relative}
+.notchbar{height:26px;display:flex;justify-content:center;align-items:flex-start}
+.notchbar i{width:86px;height:16px;background:#000;border-radius:0 0 10px 10px;display:block}
+.p-app{padding:8px 11px 16px}
+.p-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.p-top .t{font-family:'Fraunces';font-size:14px;font-weight:600}
+.p-top span{color:var(--tx3);font-size:11px}
+.p-chips{display:flex;gap:5px;margin-bottom:10px}
+.p-chip{font-size:8.5px;padding:3px 9px;border-radius:99px;border:1px solid var(--line);color:var(--tx3)}
+.p-chip.on{background:var(--paper);color:var(--ink);border-color:transparent;font-weight:600}
+.masonry{columns:2;column-gap:7px}
+.pn{break-inside:avoid;border-radius:11px;padding:9px;margin-bottom:7px;border:1px solid rgba(255,255,255,.06)}
+.pn b{display:block;font-size:9.5px;margin-bottom:3px}
+.pn span{font-size:8px;opacity:.62;line-height:1.45;display:block}
+.pn.v{background:linear-gradient(150deg,rgba(124,58,237,.30),rgba(124,58,237,.07))}
+.pn.r{background:linear-gradient(150deg,rgba(244,155,176,.24),rgba(244,155,176,.05))}
+.pn.g{background:linear-gradient(150deg,rgba(142,224,184,.22),rgba(142,224,184,.05))}
+.pn.a{background:linear-gradient(150deg,rgba(244,184,96,.24),rgba(244,184,96,.05));text-align:center;padding:14px 9px}
+.pn.a .lockico{font-size:15px;display:block;margin-bottom:3px}
+.pn.a em{font-size:7.5px;color:var(--tx3);font-style:normal}
+.p-tab{position:absolute;left:10px;right:10px;bottom:9px;height:30px;border-radius:99px;background:rgba(243,238,230,.06);border:1px solid var(--line);display:flex;align-items:center;justify-content:space-around;font-size:8px;color:var(--tx3)}
+.p-tab b{color:var(--lilac);font-weight:500}
+
+.sticky{width:158px;min-height:150px;padding:16px 15px 14px;border-radius:4px 18px 6px 16px;box-shadow:0 18px 40px -12px rgba(0,0,0,.7);font-family:'Caveat',cursive;font-size:21px;line-height:1.15;color:#221a2e;position:relative}
+.sticky::before{content:'';position:absolute;top:-9px;left:50%;transform:translateX(-50%) rotate(-3deg);width:64px;height:18px;background:rgba(244,238,225,.5);backdrop-filter:blur(2px);border:1px solid rgba(0,0,0,.05)}
+.sticky.y{background:linear-gradient(170deg,#ffe9a8,#ffd978)}
+.sticky.m{background:linear-gradient(170deg,#e9ddff,#d5c2ff)}
+.sticky.g{background:linear-gradient(170deg,#d1f4df,#b9ecd0)}
+.sticky small{display:block;font-size:13px;opacity:.55;margin-top:8px;font-family:'Caveat'}
+
+/* ---------- TICKER ---------- */
+.ticker{border-block:1px solid var(--line);overflow:hidden;padding:15px 0;position:relative;z-index:1;background:rgba(20,16,27,.5)}
+.tk{display:flex;gap:44px;width:max-content;animation:march 26s linear infinite}
+.tk span{font-family:'Fraunces';font-style:italic;font-size:17px;color:var(--tx2);display:flex;align-items:center;gap:44px;white-space:nowrap}
+.tk span::after{content:'✦';color:var(--amber);font-style:normal;font-size:11px}
+@keyframes march{to{transform:translateX(-50%)}}
+
+/* ---------- SECTIONS ---------- */
+section{position:relative;z-index:1}
+.pad{padding:104px 0}
+.sec-head{margin-bottom:56px}
+.sec-head h2{font-size:clamp(32px,4.6vw,58px);font-weight:520;line-height:1.04;letter-spacing:-.02em;margin-top:14px}
+.sec-head h2 em{font-style:italic;color:var(--lav);font-weight:380}
+.sec-head p.sub{color:var(--tx2);max-width:560px;margin-top:14px;font-size:15.5px}
+
+/* about — paper sheet */
+.sheet{grid-column:auto;background:var(--paper);color:var(--ink-on-paper);border-radius:6px;padding:clamp(28px,5vw,60px);transform:rotate(-.6deg);position:relative;box-shadow:0 30px 90px -30px rgba(0,0,0,.8)}
+.sheet::before,.sheet::after{content:'';position:absolute;width:110px;height:110px;border-radius:50%;filter:blur(30px);opacity:.35;z-index:-1}
+.sheet::before{background:var(--vio);top:-40px;right:-30px}
+.sheet::after{background:var(--amber);bottom:-50px;left:-20px}
+.about{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:34px;align-items:start}
+.sheet h2{font-size:clamp(28px,3.6vw,44px);font-weight:540;line-height:1.08;letter-spacing:-.01em;margin-bottom:16px}
+.sheet h2 em{font-style:italic;color:#6d28d9}
+.sheet p{color:#4a4358;font-size:15.5px;margin-bottom:12px}
+.sheet p b{color:var(--ink-on-paper)}
+.margin-note{position:absolute;right:clamp(14px,3vw,36px);top:calc(100% + 6px);font-size:23px;color:var(--tx3);transform:rotate(-2deg);width:200px;line-height:1.1}
+.paper-stats{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:rgba(25,20,32,.14);border:1px solid rgba(25,20,32,.14);border-radius:10px;overflow:hidden;margin-top:22px}
+.ps{background:var(--paper2);padding:18px 16px}
+.ps .v{font-family:'Fraunces';font-size:24px;font-weight:600}
+.ps .l{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#6b6377;margin-top:2px}
+
+/* features — bento */
+.bento{display:grid;grid-template-columns:repeat(6,1fr);gap:14px}
+.cell{border:1px solid var(--line);border-radius:18px;padding:26px;background:linear-gradient(165deg,var(--ink2),#0e0b15);position:relative;overflow:hidden;transition:.35s}
+.cell:hover{border-color:rgba(167,139,250,.35);transform:translateY(-3px)}
+.cell .ic{font-size:24px;margin-bottom:44px;display:block}
+.cell h3{font-size:18px;font-weight:560;margin-bottom:6px}
+.cell p{font-size:13px;color:var(--tx2);line-height:1.6}
+.c2{grid-column:span 2}.c3{grid-column:span 3}.c4{grid-column:span 4}
+.cell.tall .ic{margin-bottom:0}
+.cell .ghost{position:absolute;right:-14px;bottom:-22px;font-family:'Fraunces';font-style:italic;font-size:88px;color:rgba(167,139,250,.07);pointer-events:none}
+.cell.hot{background:linear-gradient(165deg,#1a1229,#120d1d);border-color:rgba(167,139,250,.25)}
+@media(max-width:880px){.c2,.c3,.c4{grid-column:span 6}.cell .ic{margin-bottom:18px}}
+
+/* ---------- SYNC ---------- */
+.sync-stage{display:grid;grid-template-columns:auto minmax(180px,1fr) auto;gap:clamp(14px,3.4vw,44px);align-items:center;justify-items:center;margin-bottom:26px}
+.laptop{width:min(430px,84vw);filter:drop-shadow(0 42px 60px rgba(0,0,0,.65))}
+.lt-screen{border:2px solid #241d33;border-bottom:none;border-radius:16px 16px 0 0;background:#171222;padding:9px 9px 0}
+.lt-view{border-radius:9px 9px 0 0;background:#0b0910;overflow:hidden}
+.lt-bar{display:flex;align-items:center;gap:7px;padding:9px 12px;border-bottom:1px solid var(--line)}
+.lt-bar i{width:9px;height:9px;border-radius:50%;background:#3a3348}
+.lt-body{display:grid;grid-template-columns:52px 1fr;min-height:212px}
+.lt-side{border-right:1px solid var(--line);padding:10px 8px;display:flex;flex-direction:column;gap:7px}
+.lt-side span{height:9px;border-radius:5px;background:rgba(243,238,230,.09)}
+.lt-side span.on{background:linear-gradient(90deg,var(--vio),var(--lav))}
+.lt-main{padding:12px}
+.lt-main .hd{font-family:'Fraunces';font-size:12px;font-weight:600;margin-bottom:9px;display:flex;justify-content:space-between}
+.lt-main .hd em{font-style:normal;font-size:9px;color:var(--mint);display:flex;align-items:center;gap:5px}
+.lt-main .hd em::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--mint);display:inline-block}
+.lt-notes{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.ltn{border-radius:8px;padding:8px;border:1px solid rgba(255,255,255,.06);font-size:8.5px}
+.ltn b{display:block;font-size:9px;margin-bottom:2px}
+.ltn span{opacity:.6;line-height:1.4}
+.lt-deck{height:15px;background:linear-gradient(180deg,#2a2138,#171221);border-radius:0 0 14px 14px;margin:0 -26px;position:relative}
+.lt-deck::after{content:'';position:absolute;left:50%;top:0;transform:translateX(-50%);width:76px;height:6px;border-radius:0 0 7px 7px;background:#0e0a16}
+.recv{font-family:'JetBrains Mono',monospace;font-size:clamp(20px,2.6vw,30px);letter-spacing:.34em;color:var(--lilac);text-align:center;text-shadow:0 0 26px rgba(124,58,237,.6)}
+.recv-lbl{text-align:center;font-size:10.5px;letter-spacing:.3em;text-transform:uppercase;color:var(--tx3);margin-bottom:12px}
+.wire{display:flex;flex-direction:column;align-items:center;gap:10px}
+.dash{width:100%;height:2px;background:repeating-linear-gradient(90deg,var(--lav) 0 9px,transparent 9px 18px);border-radius:2px;animation:dashmove 1.1s linear infinite;opacity:.75}
+@keyframes dashmove{to{background-position:18px 0}}
+.badge-pct{font-size:11px;color:var(--mint);border:1px solid rgba(142,224,184,.3);padding:3px 11px;border-radius:99px;background:rgba(142,224,184,.07)}
+.steps3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.stp{border:1px solid var(--line);border-radius:16px;padding:22px;background:rgba(20,16,27,.55)}
+.stp .n{font-family:'Fraunces';font-style:italic;font-size:30px;color:var(--amber);line-height:1}
+.stp h4{font-size:15.5px;margin:12px 0 5px;font-weight:600}
+.stp p{font-size:12.5px;color:var(--tx2)}
+.mirror-callout{margin-top:22px;border:1px dashed rgba(167,139,250,.4);border-radius:14px;padding:18px 22px;display:flex;gap:14px;align-items:flex-start;background:rgba(124,58,237,.05)}
+.mirror-callout .em{font-size:20px}
+.mirror-callout p{font-size:13.5px;color:var(--tx2)}
+.mirror-callout b{color:var(--tx)}
+@media(max-width:900px){.sync-stage{grid-template-columns:1fr}.wire{flex-direction:row;width:100%}.dash{height:2px}.hero{grid-template-columns:1fr;padding-top:120px}.stage{height:480px;order:-1}}
+
+/* ---------- COLORS ---------- */
+.swatches{display:flex;gap:16px;flex-wrap:wrap;justify-content:center}
+.sw{width:150px;border-radius:6px;padding:18px 16px 20px;min-height:150px;position:relative;cursor:default;transition:transform .35s cubic-bezier(.2,.8,.2,1);color:#221a2e}
+.sw:hover{transform:translateY(-8px) rotate(-1.5deg)}
+.sw::before{content:'';position:absolute;top:-8px;left:50%;transform:translateX(-50%) rotate(-2deg);width:56px;height:16px;background:rgba(244,238,225,.55)}
+.sw b{font-family:'Fraunces';font-size:16px;display:block;margin-bottom:5px;font-weight:600}
+.sw span{font-family:'Caveat';font-size:18px;line-height:1.1;opacity:.75}
+.sw.v{background:linear-gradient(165deg,#ddd0ff,#c3aef8)}.sw.r{background:linear-gradient(165deg,#ffd6de,#ffc2ce)}.sw.o{background:linear-gradient(165deg,#ffe6c0,#ffd79d)}.sw.g{background:linear-gradient(165deg,#cff3dc,#b4ebc9)}.sw.c{background:linear-gradient(165deg,#c9ecfa,#ade2f6)}.sw.k{background:linear-gradient(165deg,#ece7db,#ded6c4)}
+
+/* ---------- DOWNLOAD tickets ---------- */
+.tickets{display:grid;grid-template-columns:1fr 1fr;gap:22px;max-width:760px;margin:0 auto}
+.ticket{position:relative;border-radius:18px;padding:34px 28px 30px;background:var(--ink2);border:1px solid var(--line);overflow:hidden}
+.ticket::before,.ticket::after{content:'';position:absolute;top:50%;width:26px;height:26px;border-radius:50%;background:var(--ink);border:1px solid var(--line);transform:translateY(-50%)}
+.ticket::before{left:-14px}.ticket::after{right:-14px}
+.ticket .edge{position:absolute;top:0;bottom:0;left:66px;border-left:2px dashed rgba(243,238,230,.14)}
+.tick-emoji{position:absolute;left:16px;top:30px;font-size:30px}
+.ticket h3{font-size:23px;font-weight:560;margin-left:64px}
+.ticket .subt{margin-left:64px;font-size:12.5px;color:var(--tx2);margin-bottom:20px}
+.ticket .ver{margin-left:64px;font-family:'JetBrains Mono';font-size:11px;color:var(--tx3);margin-bottom:22px}
+.ticket .btn-area{margin-left:64px}
+.tb{display:block;text-align:center;text-decoration:none;font-weight:600;font-size:14.5px;padding:14px;border-radius:12px;transition:.25s}
+.tb-p{background:linear-gradient(140deg,#8b5cf6,#6d28d9);color:#fff}
+.tb-p:hover{transform:translateY(-2px);box-shadow:0 12px 30px -8px rgba(124,58,237,.7)}
+.tb-g{border:1px solid rgba(243,238,230,.2);color:var(--tx)}
+.tb-g:hover{border-color:var(--mint);color:var(--mint)}
+.fine{font-size:11px;color:var(--tx3);margin-top:12px;margin-left:64px}
+@media(max-width:720px){.tickets{grid-template-columns:1fr}}
+
+footer{position:relative;z-index:1;border-top:1px solid var(--line);margin-top:40px;padding:46px 26px;text-align:center}
+footer .big{font-family:'Fraunces';font-style:italic;font-size:clamp(22px,3vw,32px);color:var(--tx);margin-bottom:14px}
+footer .big a{color:var(--lav);text-decoration:none}
+footer p{font-size:12.5px;color:var(--tx3);margin-bottom:18px}
+footer nav2,.flinks{display:flex;gap:22px;justify-content:center;flex-wrap:wrap}
+footer a.fl{color:var(--tx2);text-decoration:none;font-size:13px}
+footer a.fl:hover{color:var(--lav)}
+
+/* reveal */
+.rv{opacity:0;transform:translateY(26px);transition:opacity .7s ease,transform .7s cubic-bezier(.2,.8,.2,1)}
+.rv.in{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){.rv{transition:none;opacity:1;transform:none}.floaty>.in{animation:none}}
+@media(max-width:880px){.hero h1 .ul svg{height:.26em}}
 </style>
 </head>
 <body>
-<canvas id="pc"></canvas>
-<div id="progress"></div>
-<nav id="topnav">
-  <a class="nav-brand" href="#top"><div class="nav-icon">L</div><span class="nav-name">LostNote</span></a>
-  <div class="nav-links">
-    <a href="#about">About</a><a href="#features">Features</a><a href="#sync">Sync</a><a href="#colors">Colors</a>
-    <a href="#download" class="nav-dl">Download free</a>
-  </div>
-  <button class="hamburger" id="burger"><span></span><span></span><span></span></button>
+<div id="bar"></div>
+
+<nav>
+  <a class="brand" href="#top"><span class="logo">L</span>LostNote</a>
+  <a class="lnk" href="#why">Why</a>
+  <a class="lnk" href="#features">Features</a>
+  <a class="lnk" href="#sync">Sync</a>
+  <a class="lnk cta" href="#get">&#8595; Get the app</a>
 </nav>
-<div id="mnav"><a href="#about">About</a><a href="#features">Features</a><a href="#sync">Sync</a><a href="#colors">Colors</a><a href="#download">Download free</a></div>
 
-<section class="hero" id="top">
-  <div class="hero-glow a"></div><div class="hero-glow b"></div><div class="hero-glow c"></div>
-  <div class="hero-inner">
-    <div class="hero-pill sr"><span class="live"></span><code>v1.0</code>&nbsp;&mdash; Android + Windows, out now</div>
-    <h1 class="sr">Write it before<br><span class="grad">you lose it.</span></h1>
-    <p class="hero-desc sr">A notes app that lives entirely on your device. Colors, photos, PDF export, a locked archive &mdash; and direct phone&nbsp;&#8596;&nbsp;PC sync with no server in between.</p>
-    <div class="hero-btns sr">
-      <a href="https://github.com/rkkizar777-design/lostnote/releases/latest/download/LostNote.apk" class="btn btn-fill">&#128241; Get the APK</a>
-      <a href="https://github.com/rkkizar777-design/lostnote/releases/latest/download/LostNote.exe" class="btn btn-ghost">&#128187; Windows EXE</a>
+<!-- HERO -->
+<header class="wrap hero" id="top">
+  <div>
+    <div class="kick rv"><i></i>v1.0 &mdash; android + windows, free forever</div>
+    <h1 class="rv">Write it before<br>you <span class="ul"><em>lose it.</em><svg viewBox="0 0 220 22" preserveAspectRatio="none"><path d="M3 16 C 60 6, 150 4, 217 12" fill="none" stroke="#f4b860" stroke-width="5" stroke-linecap="round"/></svg></span></h1>
+    <p class="lede rv">A notes app that lives entirely on your device. No cloud copy, no account, no telemetry. When you want your phone and PC to agree, they talk <b>directly to each other</b> &mdash; five digits, done.</p>
+    <div class="btns rv">
+      <a class="b b-p" href="https://github.com/rkkizar777-design/lostnote/releases/latest/download/LostNote.apk">Get the Android APK &#8599;</a>
+      <a class="b b-g" href="https://github.com/rkkizar777-design/lostnote/releases/latest/download/LostNote.exe">Windows EXE &#8599;</a>
     </div>
-    <div class="hero-nums sr">
-      <div class="hero-num"><div class="n">0</div><div class="l">Servers</div></div>
-      <div class="hero-num"><div class="n">0</div><div class="l">Accounts</div></div>
-      <div class="hero-num"><div class="n">100%</div><div class="l">Offline core</div></div>
-      <div class="hero-num"><div class="n">P2P</div><div class="l">Device sync</div></div>
+    <div class="meta-row rv">
+      <div><b>0</b> servers</div><div><b>0</b> accounts</div><div><b>0</b> trackers</div><div><b>&#8734;</b> thoughts kept</div>
     </div>
   </div>
-</section>
-<div class="trust sr"><div><b>No sign-up</b> &mdash; open &amp; write</div><div><b>No cloud</b> &mdash; your device is the server</div><div><b>No tracking</b> &mdash; ever</div><div><b>Free</b> &amp; open source</div></div>
 
-<section class="sec" id="about">
-  <div class="about-grid">
-    <div class="about-text sr">
-      <h2 class="big">Not another notes app.<br><span class="grad">Your second memory.</span></h2>
-      <p>Most notes apps hold your thoughts hostage in someone else's cloud. LostNote doesn't have a cloud. Your notes live in your device's own database, encrypted by your OS, readable only by you.</p>
-      <p>Dress them up with glass-tint colors, attach photos, tag them, pin them. Export everything to PDF when paper wins. Lock the sensitive stuff behind a PIN &mdash; and hide it completely in an archive with its <em>second</em> PIN.</p>
-      <div class="callout"><strong>The killer move:</strong> open LostNote on your phone and PC, type one 5-digit code, and your entire library crosses over &mdash; including archived and trashed notes, exactly as they are. No cable. No account. No cloud.</div>
+  <div class="stage floaty" id="stage">
+    <div class="hint hand">go on, drag things &#8599;</div>
+
+    <div class="draggable" data-drag style="--x:6%;--y:16%">
+      <div class="in sticky y" style="--r:-5deg">buy oat milk<br>+ birthday wrapping paper!!<small>&mdash; future you</small></div>
     </div>
-    <div class="about-visual sr">
-      <div class="about-stat"><div class="ico">&#128190;</div><div class="val">On-device</div><div class="lbl">IndexedDB storage</div></div>
-      <div class="about-stat"><div class="ico">&#128274;</div><div class="val">Double</div><div class="lbl">PIN protection</div></div>
-      <div class="about-stat"><div class="ico">&#128241;</div><div class="val">3.6 MB</div><div class="lbl">Android APK</div></div>
-      <div class="about-stat"><div class="ico">&#128187;</div><div class="val">1 file</div><div class="lbl">Windows EXE</div></div>
+
+    <div class="draggable" data-drag style="--x:64%;--y:4%">
+      <div class="in sticky g" style="--r:6deg">app idea:<br>notes app with<br>NO CLOUD<small>weird flex&hellip; try it</small></div>
     </div>
-  </div>
-</section>
 
-<section class="sec" id="features">
-  <h2 class="sr" style="text-align:center"><span class="grad" style="font-size:clamp(26px,3.5vw,38px);font-weight:800">Everything it can do</span></h2>
-  <p class="sub sr">Every feature built with a real use case in mind</p>
-  <div class="feat-grid">
-    <div class="feat-card sr"><div class="feat-ico">&#127912;</div><h3>Glass-tint colors</h3><p>Eight whole-card tints that blend into frosted gradients. Find notes by feel, not just by title.</p></div>
-    <div class="feat-card sr"><div class="feat-ico">&#128247;</div><h3>Photos</h3><p>Camera or gallery, multiple per note. Tap any photo for fullscreen with pinch-zoom.</p></div>
-    <div class="feat-card sr"><div class="feat-ico">&#128196;</div><h3>PDF export</h3><p>All notes, beautifully typeset into one printable document. For court, for class, for grandma.</p></div>
-    <div class="feat-card sr"><div class="feat-ico">&#128274;</div><h3>PIN + locked archive</h3><p>A 4-digit lock for the whole app &mdash; and a separate second PIN guarding the archive vault.</p></div>
-    <div class="feat-card sr"><div class="feat-ico">&#128465;&#65039;</div><h3>Trash with undo</h3><p>Deleted notes wait in trash with one-tap restore. Nothing disappears by accident.</p></div>
-    <div class="feat-card sr"><div class="feat-ico">&#127909;</div><h3>Share as image</h3><p>Any note becomes a gorgeous renderable card &mdash; post it, send it, frame it.</p></div>
-    <div class="feat-card sr"><div class="feat-ico">&#127991;&#65039;</div><h3>Tags &amp; filters</h3><p>Chip-based tagging with instant filtering. Your mess, organized.</p></div>
-    <div class="feat-card sr"><div class="feat-ico">&#127769;</div><h3>OLED-first themes</h3><p>True-black dark mode, clean light mode, and an auto mode that follows your system.</p></div>
-    <div class="feat-card sr"><div class="feat-ico">&#128421;&#65039;</div><h3>Real desktop layout</h3><p>The Windows build isn't a stretched phone screen &mdash; centered editor window, wide grid, keyboard-first.</p></div>
-  </div>
-</section>
+    <div class="draggable" data-drag style="--x:58%;--y:47%">
+      <div class="in sticky m" style="--r:-3deg">passwords live in my head now<small>bold strategy</small></div>
+    </div>
 
-<section class="sec" id="sync">
-  <h2 class="sr" style="text-align:center"><span class="grad" style="font-size:clamp(26px,3.5vw,38px);font-weight:800">Phone &#8596; PC. No cloud. Just a code.</span></h2>
-  <p class="sub sr">Peer-to-peer over WebRTC &mdash; direct when possible, relayed automatically through an encrypted tunnel when networks fight back</p>
-  <div class="sync-wrap">
-    <div class="device sr"><div class="phone">
-      <div class="notch"></div>
-      <div class="pscr">
-        <div class="phead"><span class="t">LostNote</span><span style="color:var(--text3);font-size:12px">&#9881;</span></div>
-        <div class="pillrow"><span class="chip on">All</span><span class="chip">ideas</span><span class="chip">work</span><span class="chip">life</span></div>
-        <div class="ngrid">
-          <div class="ncard" style="background:linear-gradient(145deg,rgba(109,40,217,.24),rgba(109,40,217,.05))"><div class="nt">App launch</div><div class="nb">Ship v1.0 &mdash; APK + portable EXE, both under 90&hellip;</div></div>
-          <div class="ncard" style="background:linear-gradient(145deg,rgba(244,114,182,.24),rgba(244,114,182,.05))"><div class="nt">Gift ideas 🎁</div><div class="nb">Analog camera, wool blanket, that espresso&hellip;</div></div>
-          <div class="ncard" style="background:linear-gradient(145deg,rgba(52,211,153,.24),rgba(52,211,153,.05))"><div class="nt">Gym plan</div><div class="nb">Mon push · Wed pull · Sat legs, 5&#215;5 heavy</div></div>
-          <div class="ncard locked" style="background:linear-gradient(145deg,rgba(251,146,60,.22),rgba(251,146,60,.04))"><span style="font-size:17px">&#128274;</span><span style="font-size:8px;color:var(--text3)">Archive locked</span></div>
+    <div class="draggable" data-drag data-center style="--x:22%;--y:26%">
+      <div class="in">
+        <div class="phone">
+          <div class="scrn">
+            <div class="notchbar"><i></i></div>
+            <div class="p-app">
+              <div class="p-top"><span class="t">LostNote</span><span>24 notes</span></div>
+              <div class="p-chips"><span class="p-chip on">All</span><span class="p-chip">ideas</span><span class="p-chip">life</span><span class="p-chip">work</span></div>
+              <div class="masonry">
+                <div class="pn v"><b>Launch day</b><span>APK + portable EXE. Both under 90 MB total.</span></div>
+                <div class="pn r"><b>Gift ideas</b><span>analog camera &middot; wool blanket</span></div>
+                <div class="pn g"><b>Gym split</b><span>push / pull / legs &times;5&#215;5</span></div>
+              </div>
+            </div>
+            <div class="p-tab"><b>&#9636; Notes</b><span>&#128206; Sync</span><span>&#9881;</span></div>
+          </div>
         </div>
       </div>
-    </div></div>
-    <div class="linkbeam sr"><div class="beam"></div><div class="codebig">7&nbsp;3&nbsp;4&nbsp;8&nbsp;1</div><div class="codebig-lbl">one code &middot; end-to-end</div><div class="beam" style="animation-delay:-1.1s"></div></div>
-    <div class="device sr"><div class="monitor"><div class="monscr">
-      <div class="monhead"><div class="monlogo">L</div><div class="montitle">LostNote &mdash; receiving&hellip;</div></div>
-      <div class="pbar"><i></i></div>
-      <div style="font-size:9px;color:var(--green);margin-bottom:10px">&#10003; linked &middot; merging newest versions</div>
-      <div class="monrow"><div class="rn">App launch</div><div class="rd">updated 2 min ago &middot; color: violet</div></div>
-      <div class="monrow"><div class="rn">Gift ideas</div><div class="rd">new from phone</div></div>
-      <div class="monrow"><div class="rn">Old wifi password</div><div class="rd">arrived in <span style="color:var(--orange)">trash</span>, exactly as deleted</div></div>
-      <div class="monrow"><div class="rn">Secret recipes</div><div class="rd">arrived <span style="color:var(--lav)">archived</span> behind PIN</div></div>
-    </div><div class="monchin"></div></div><div class="monstand"></div></div>
+    </div>
   </div>
-  <div class="steps">
-    <div class="step sr"><div class="sn">1</div><h4>Tap Send</h4><p>LostNote packs every note &mdash; active, archived, even trashed &mdash; and shows a 5-digit code.</p></div>
-    <div class="step sr"><div class="sn">2</div><h4>Type it there</h4><p>On the other device choose Receive and enter the code. A direct WebRTC link forms.</p></div>
-    <div class="step sr"><div class="sn">3</div><h4>Mirrored</h4><p>Newest edits win, deletions propagate, duplicates never happen. Both devices agree.</p></div>
-  </div>
-  <div class="callout sr" style="max-width:720px;margin:26px auto 0;text-align:center"><strong>Mirror, not chaos.</strong> If a note was deleted on your phone, it arrives in trash on your PC &mdash; not resurrected. Archive stays archive. Locked stays locked. It's the closest thing to cloning your brain.</div>
-</section>
+</header>
 
-<section class="sec" id="colors">
-  <h2 class="sr" style="text-align:center"><span class="grad" style="font-size:clamp(26px,3.5vw,38px);font-weight:800">Pick a mood, pick a color</span></h2>
-  <p class="sub sr">Frosted glass tints across the whole card &mdash; soft to look at, impossible to confuse</p>
-  <div class="colors-strip">
-    <div class="mini-note sr" style="background:linear-gradient(145deg,rgba(109,40,217,.24),rgba(109,40,217,.05))"><div class="t">Violet</div><div class="b">The default state of mind</div></div>
-    <div class="mini-note sr" style="background:linear-gradient(145deg,rgba(239,68,68,.22),rgba(239,68,68,.05))"><div class="t">Red</div><div class="b">Urgent. Pay by Friday</div></div>
-    <div class="mini-note sr" style="background:linear-gradient(145deg,rgba(249,115,22,.22),rgba(249,115,22,.05))"><div class="t">Orange</div><div class="b">Ideas mid-spark</div></div>
-    <div class="mini-note sr" style="background:linear-gradient(145deg,rgba(52,211,153,.22),rgba(52,211,153,.05))"><div class="t">Green</div><div class="b">Money, plants, gym</div></div>
-    <div class="mini-note sr" style="background:linear-gradient(145deg,rgba(34,211,238,.22),rgba(34,211,238,.05))"><div class="t">Cyan</div><div class="b">Cool and clear</div></div>
-    <div class="mini-note sr" style="background:linear-gradient(145deg,rgba(244,114,182,.22),rgba(244,114,182,.05))"><div class="t">Pink</div><div class="b">Soft things worth keeping</div></div>
-  </div>
-</section>
+<!-- TICKER -->
+<div class="ticker"><div class="tk">
+  <span>no servers</span><span>p2p sync</span><span>OLED black</span><span>PIN-locked archive</span><span>PDF export</span><span>photos</span><span>glass colors</span><span>trash with undo</span><span>open source</span>
+  <span>no servers</span><span>p2p sync</span><span>OLED black</span><span>PIN-locked archive</span><span>PDF export</span><span>photos</span><span>glass colors</span><span>trash with undo</span><span>open source</span>
+</div></div>
 
-<section class="sec" id="download">
-  <h2 class="sr" style="text-align:center"><span class="grad" style="font-size:clamp(26px,3.5vw,38px);font-weight:800">Get LostNote</span></h2>
-  <p class="sub sr">Free. Open source. No strings attached.</p>
-  <div class="dl-grid">
-    <div class="dl-card sr">
-      <div class="dl-ico">&#128241;</div>
+<!-- ABOUT -->
+<section class="pad" id="why"><div class="wrap">
+  <div class="about rv">
+    <div class="sheet">
+      <h2>Your notes are <em>yours.</em><br>We act like it.</h2>
+      <p>Every mainstream notes app quietly makes a photocopy of your brain and keeps it in someone else's filing cabinet. <b>LostNote doesn't have a cabinet.</b> Your notes live in your device's own encrypted database &mdash; and nowhere else.</p>
+      <p>Dress them in glass-tint colors, staple photos to them, export the whole stack to PDF when paper wins. Lock the app with a PIN, and hide the sensitive ones in an archive behind a <b>second PIN</b>.</p>
+      <p>Deleted things wait politely in trash with one-tap undo. Nothing vanishes by accident.</p>
+      <div class="paper-stats">
+        <div class="ps"><div class="v">IndexedDB</div><div class="l">storage, on-device</div></div>
+        <div class="ps"><div class="v">2&times;</div><div class="l">PIN layers</div></div>
+        <div class="ps"><div class="v">1-tap</div><div class="l">undo forever</div></div>
+        <div class="ps"><div class="v">0 KB</div><div class="l">sent to clouds</div></div>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<!-- FEATURES -->
+<section class="pad" id="features" style="padding-top:20px"><div class="wrap">
+  <div class="sec-head rv">
+    <div class="kick"><i></i>the toolkit</div>
+    <h2>Small app,<br><em>complete</em> memory.</h2>
+  </div>
+  <div class="bento">
+    <div class="cell c2 hot rv"><span class="ghost">P2P</span><span class="ic">&#128206;</span><h3>Phone &#8596; PC sync</h3><p>One 5-digit code moves your whole library across devices over WebRTC. Direct when possible, relayed automatically when networks misbehave.</p></div>
+    <div class="cell c2 rv"><span class="ic">&#127912;</span><h3>Glass-tint colors</h3><p>Eight frosted tints covering the entire card &mdash; find notes by feel.</p></div>
+    <div class="cell c2 rv"><span class="ic">&#128247;</span><h3>Photos</h3><p>Camera or gallery, many per note, fullscreen viewer built in.</p></div>
+    <div class="cell c3 rv"><span class="ghost">PDF</span><span class="ic">&#128196;</span><h3>The everything-PDF</h3><p>One tap renders your entire library into a single beautifully typeset document. For court, for class, for the drawer where important papers live.</p></div>
+    <div class="cell c3 rv"><span class="ghost">PIN</span><span class="ic">&#128274;</span><h3>Locks within locks</h3><p>A 4-digit PIN guards the app. A separate second PIN guards the archive &mdash; because some notes are for future you only.</p></div>
+    <div class="cell c2 rv"><span class="ic">&#127909;</span><h3>Share as image</h3><p>Any note becomes a polished card ready to send.</p></div>
+    <div class="cell c2 rv"><span class="ic">&#128465;&#65039;</span><h3>Trash with undo</h3><p>Delete is a suggestion, not a sentence.</p></div>
+    <div class="cell c2 rv"><span class="ic">&#127769;</span><h3>OLED-first themes</h3><p>True-black by default. Light mode when you must. Auto if you're indecisive.</p></div>
+  </div>
+</div></section>
+
+<!-- SYNC -->
+<section class="pad" id="sync"><div class="wrap">
+  <div class="sec-head rv">
+    <div class="kick"><i></i>the party trick</div>
+    <h2>Phone talks to PC.<br><em>Nobody</em> in the middle.</h2>
+    <p class="sub">Both devices connect straight to each other over an encrypted WebRTC channel. If firewalls block the direct path, they detour through a relay automatically &mdash; you just watch the bar fill.</p>
+  </div>
+
+  <div class="sync-stage">
+    <div class="stage-mini rv" style="position:relative;touch-action:none">
+      <div class="hand" style="color:var(--tx3);font-size:19px;margin-bottom:10px;transform:rotate(-3deg)">this one's grabbable too &#8599;</div>
+      <div class="draggable floaty" data-drag style="position:relative;--x:0;--y:0">
+        <div class="in" style="--r:-2deg">
+          <div class="phone" style="width:210px">
+            <div class="scrn"><div class="notchbar"><i></i></div>
+              <div class="code-scr" style="padding:34px 14px 40px;text-align:center">
+                <div style="font-size:9px;letter-spacing:.28em;color:var(--tx3);text-transform:uppercase;margin-bottom:12px">send all notes</div>
+                <div class="recv" style="font-size:24px">7 3 4 8 1</div>
+                <div style="font-size:9px;color:var(--tx3);margin:12px 0 16px">waiting for other device&#8230;</div>
+                <div style="height:5px;border-radius:99px;background:#1c1728;overflow:hidden"><i style="display:block;height:100%;width:64%;background:linear-gradient(90deg,var(--vio),var(--lav))"></i></div>
+                <div style="font-size:9px;color:var(--mint);margin-top:10px">&#10003; linked &middot; sending 24 notes</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="wire rv">
+      <div class="dash"></div>
+      <div><div class="recv-lbl">one code &middot; end to end</div><div class="badge-pct" style="text-align:center">encrypted &middot; peer to peer</div></div>
+      <div class="dash"></div>
+    </div>
+
+    <div class="rv">
+      <div class="laptop">
+        <div class="lt-screen"><div class="lt-view">
+          <div class="lt-bar"><i></i><i></i><i></i></div>
+          <div class="lt-body">
+            <div class="lt-side"><span class="on"></span><span></span><span></span><span></span><span></span></div>
+            <div class="lt-main">
+              <div class="hd">Receiving&hellip;<em>linked</em></div>
+              <div style="height:5px;border-radius:99px;background:#1c1728;overflow:hidden;margin-bottom:10px"><i style="display:block;height:100%;width:64%;background:linear-gradient(90deg,var(--vio),var(--lav))"></i></div>
+              <div class="lt-notes">
+                <div class="ltn v" style="background:linear-gradient(150deg,rgba(124,58,237,.28),rgba(124,58,237,.06))"><b>Launch day</b><span>updated from phone</span></div>
+                <div class="ltn" style="background:var(--ink2)"><b>Gym split</b><span>new</span></div>
+                <div class="ltn" style="background:var(--ink2)"><b>Old wifi password</b><span style="color:var(--amber)">arrived in trash, exactly as deleted</span></div>
+                <div class="ltn" style="background:var(--ink2)"><b>Secret recipes</b><span style="color:var(--lav)">arrived archived &#183; PIN intact</span></div>
+              </div>
+            </div>
+          </div>
+        </div></div>
+        <div class="lt-deck"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="steps3">
+    <div class="stp rv"><div class="n">1.</div><h4>Tap Send</h4><p>Everything is packed &mdash; active, archived, even trashed &mdash; and a 5-digit code appears.</p></div>
+    <div class="stp rv"><div class="n">2.</div><h4>Type it there</h4><p>Receive, enter the code, and the devices shake hands directly.</p></div>
+    <div class="stp rv"><div class="n">3.</div><h4>Mirrored</h4><p>Newest edits win, deletions propagate, duplicates never happen.</p></div>
+  </div>
+
+  <div class="mirror-callout rv">
+    <div class="em">&#129504;</div>
+    <p><b>Mirror, not chaos.</b> Delete on your phone &#8594; it lands in trash on your PC, not resurrected. Archive stays archived. Locked stays locked. It's the closest thing to cloning your brain without the ethics paperwork.</p>
+  </div>
+</div></section>
+
+<!-- COLORS -->
+<section class="pad" id="colors" style="padding-top:20px"><div class="wrap">
+  <div class="sec-head rv" style="text-align:center">
+    <div class="kick" style="justify-content:center"><i></i>washi &amp; tints<i style="transform:scaleX(-1)"></i></div>
+    <h2>Six ways to feel<br>a thought.</h2>
+  </div>
+  <div class="swatches">
+    <div class="sw v rv"><b>Violet</b><span>the default state of mind</span></div>
+    <div class="sw r rv"><b>Rose</b><span>soft things worth keeping</span></div>
+    <div class="sw o rv"><b>Amber</b><span>urgent, pay by friday</span></div>
+    <div class="sw g rv"><b>Mint</b><span>money, plants, gym</span></div>
+    <div class="sw c rv"><b>Sky</b><span>cool and clear</span></div>
+    <div class="sw k rv"><b>Stone</b><span>quietly neutral</span></div>
+  </div>
+</div></section>
+
+<!-- DOWNLOAD -->
+<section class="pad" id="get"><div class="wrap">
+  <div class="sec-head rv" style="text-align:center">
+    <div class="kick" style="justify-content:center"><i></i>take it, it's free<i style="transform:scaleX(-1)"></i></div>
+    <h2>Tear here &#9995;</h2>
+  </div>
+  <div class="tickets">
+    <div class="ticket rv"><span class="edge"></span><span class="tick-emoji">&#128241;</span>
       <h3>Android</h3>
-      <p>Native-feeling app via Capacitor &mdash; install the APK directly</p>
-      <div class="dl-ver">v1.0 &middot; 3.6 MB</div>
-      <a class="btn btn-fill" href="https://github.com/rkkizar777-design/lostnote/releases/latest/download/LostNote.apk">Download APK</a>
-      <div class="dl-note">Requires Android 7.0+ &middot; allow unknown sources</div>
+      <div class="subt">Capacitor-native feel, tiny footprint</div>
+      <div class="ver">v1.0 &middot; 3.6 MB &middot; Android 7.0+</div>
+      <div class="btn-area"><a class="tb tb-p" href="https://github.com/rkkizar777-design/lostnote/releases/latest/download/LostNote.apk">Download APK</a></div>
+      <div class="fine">Allow "unknown sources" once &mdash; Android will ask nicely.</div>
     </div>
-    <div class="dl-card pc sr">
-      <div class="dl-ico">&#128187;</div>
+    <div class="ticket rv"><span class="edge"></span><span class="tick-emoji">&#128187;</span>
       <h3>Windows</h3>
-      <p>One portable EXE &mdash; no installer, runs even from a USB stick</p>
-      <div class="dl-ver">v1.0 &middot; ~89 MB</div>
-      <a class="btn btn-ghost" style="border-color:var(--accent);color:var(--lav)" href="https://github.com/rkkizar777-design/lostnote/releases/latest/download/LostNote.exe">Download EXE</a>
-      <div class="dl-note">Windows 10/11 &middot; double-click &amp; go</div>
+      <div class="subt">One portable file. No installer. USB-stick friendly.</div>
+      <div class="ver">v1.0 &middot; ~89 MB &middot; Win 10 / 11</div>
+      <div class="btn-area"><a class="tb tb-g" href="https://github.com/rkkizar777-design/lostnote/releases/latest/download/LostNote.exe">Download EXE</a></div>
+      <div class="fine">Double-click. That's the install.</div>
     </div>
   </div>
-</section>
+</div></section>
 
 <footer>
-  <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px">
-    <div class="nav-icon" style="width:24px;height:24px;font-size:11px">L</div><span style="font-weight:800;font-size:14px">LostNote</span>
-  </div>
-  <p>Built by <a href="https://github.com/rkkizar777-design" style="color:var(--lav);text-decoration:none">KIZAR</a> &middot; From Algiers &middot; Zero servers, zero tracking, zero BS</p>
-  <div>
-    <a class="lnk" href="https://github.com/rkkizar777-design/lostnote">Source</a>
-    <a class="lnk" href="https://github.com/rkkizar777-design/lostnote/releases">Releases</a>
-    <a class="lnk" href="https://gitsearch-website.vercel.app">GitSearch</a>
-    <a class="lnk" href="https://kiz-player.vercel.app">KIZ Player</a>
-    <a class="lnk" href="https://portfolio-7v27jfiiq-razikmakmak-1648s-projects.vercel.app">Portfolio</a>
+  <div class="big rv">write it before you <a href="#top">lose it.</a></div>
+  <p>Built by KIZAR &middot; Algiers &middot; zero servers, zero tracking, zero BS</p>
+  <div class="flinks">
+    <a class="fl" href="https://github.com/rkkizar777-design/lostnote">Source</a>
+    <a class="fl" href="https://github.com/rkkizar777-design/lostnote/releases">Releases</a>
+    <a class="fl" href="https://gitsearch-website.vercel.app">GitSearch</a>
+    <a class="fl" href="https://kiz-player.vercel.app">KIZ Player</a>
+    <a class="fl" href="https://kizar-portfolio.vercel.app">Portfolio</a>
   </div>
 </footer>
 
 <script>
 (function(){
-  var c=document.getElementById('pc'),x=c.getContext('2d'),W,H,pts=[],m={x:-999,y:-999};
-  var cols=['rgba(139,92,246,','rgba(196,181,253,','rgba(244,114,182,','rgba(34,211,238,'];
-  function rs(){W=c.width=innerWidth;H=c.height=innerHeight}
-  rs();addEventListener('resize',rs);
-  addEventListener('mousemove',function(e){m.x=e.clientX;m.y=e.clientY});
-  for(var i=0;i<80;i++)pts.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35,r:Math.random()*2+.6,c:cols[i%4]});
-  (function dr(){
-    x.clearRect(0,0,W,H);
-    for(var i=0;i<pts.length;i++){var p=pts[i];p.x+=p.vx;p.y+=p.vy;
-      if(p.x<0)p.x=W;if(p.x>W)p.x=0;if(p.y<0)p.y=H;if(p.y>H)p.y=0;
-      var dx=m.x-p.x,dy=m.y-p.y,d=Math.sqrt(dx*dx+dy*dy);
-      if(d<140){p.x-=dx*.008;p.y-=dy*.008}
-      x.beginPath();x.arc(p.x,p.y,p.r,0,6.29);x.fillStyle=p.c+'.45)';x.fill();
-      for(var j=i+1;j<pts.length;j++){var q=pts[j],ax=p.x-q.x,ay=p.y-q.y,d2=Math.sqrt(ax*ax+ay*ay);
-        if(d2<110){x.beginPath();x.moveTo(p.x,p.y);x.lineTo(q.x,q.y);x.strokeStyle=p.c+(.12*(1-d2/110))+')';x.lineWidth=.5;x.stroke()}}
+  /* scroll progress + nav */
+  var bar=document.getElementById('bar');
+  addEventListener('scroll',function(){
+    var h=document.documentElement,max=h.scrollHeight-h.clientHeight;
+    bar.style.width=(scrollY/max*100)+'%';
+  },{passive:true});
+
+  /* reveals */
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.12});
+  document.querySelectorAll('.rv').forEach(function(el){io.observe(el)});
+
+  /* dragging */
+  var stage=document.getElementById('stage');
+  function initDrag(el){
+    var px=0,py=0,cx=null,cy=null,startLeft=0,startTop=0;
+    function place(){el.style.transform='translate('+cx+'px,'+cy+'px) rotate('+(cx*0)+ 'deg)';}
+    function computeStart(){
+      var pr=el.parentElement.getBoundingClientRect(),r=el.getBoundingClientRect();
+      startLeft=r.left-pr.left;startTop=r.top-pr.top;
+      el.style.left='0px';el.style.top='0px';
+      el.style.transform='translate('+startLeft+'px,'+startTop+'px)';
+      cx=startLeft;cy=startTop;
     }
-    requestAnimationFrame(dr);
-  })();
+    if(el.hasAttribute('data-center'))computeStart();
+    else{
+      var fx=el.style.getPropertyValue('--x'),fy=el.style.getPropertyValue('--y');
+      el.style.left=fx;el.style.top=fy;el.style.transform='translate(0,0)';
+    }
+    var inFloat=el.classList.contains('floaty');
+    el.addEventListener('pointerdown',function(e){
+      e.preventDefault();
+      if(inFloat)el.classList.remove('floaty');
+      el.classList.add('dragging');
+      el.setPointerCapture(e.pointerId);
+      px=e.clientX;py=e.clientY;
+      if(cx===null){
+        var pr2=el.parentElement.getBoundingClientRect(),r2=el.getBoundingClientRect();
+        cx=r2.left-pr2.left;cy=r2.top-pr2.top;
+        el.style.left='0px';el.style.top='0px';
+      }
+      el.style.zIndex=50;
+      function mv(ev){
+        cx+=ev.clientX-px;cy+=ev.clientY-py;
+        px=ev.clientX;py=ev.clientY;
+        var tilt=Math.max(-8,Math.min(8,(ev.clientX-px)*0));
+        el.style.transform='translate('+cx+'px,'+cy+'px) scale(1.02)';
+      }
+      function up(ev){
+        el.classList.remove('dragging');
+        if(inFloat)el.classList.add('floaty');
+        el.style.zIndex='';
+        el.removeEventListener('pointermove',mv);
+        el.removeEventListener('pointerup',up);
+        el.removeEventListener('pointercancel',up);
+      }
+      el.addEventListener('pointermove',mv);
+      el.addEventListener('pointerup',up);
+      el.addEventListener('pointercancel',up);
+    });
+  }
+  document.querySelectorAll('[data-drag]').forEach(initDrag);
 })();
-var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)e.target.classList.add('vis')})},{threshold:.12});
-document.querySelectorAll('.sr').forEach(function(el){io.observe(el)});
-addEventListener('scroll',function(){
-  var h=document.documentElement,max=h.scrollHeight-h.clientHeight;
-  document.getElementById('progress').style.width=(scrollY/max*100)+'%';
-  document.getElementById('topnav').classList.toggle('solid',scrollY>30);
-});
-document.getElementById('burger').onclick=function(){document.getElementById('mnav').classList.toggle('open');};
-document.querySelectorAll('#mnav a').forEach(function(a){a.onclick=function(){document.getElementById('mnav').classList.remove('open')}});
 </script>
 </body>
 </html>
