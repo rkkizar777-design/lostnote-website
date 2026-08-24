@@ -17,8 +17,8 @@
   --amber:#f4b860;--mint:#8ee0b8;--rose:#f49bb0;
   --tx:#efeaf6;--tx2:#9b93ab;--tx3:#5f586e;
 }
-html{scroll-behavior:smooth}
-body{background:var(--ink);color:var(--tx);font-family:'Space Grotesk',sans-serif;line-height:1.65;overflow-x:hidden}
+html{scroll-behavior:smooth;overflow-x:clip}
+body{background:var(--ink);color:var(--tx);font-family:'Space Grotesk',sans-serif;line-height:1.65;overflow-x:clip;width:100%}
 /* ruled notebook lines + margin */
 body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5;
   background:
@@ -60,10 +60,10 @@ nav .cta:hover{background:#fff}
 .meta-row b{color:var(--tx2);font-weight:500}
 
 /* playground */
-.stage{position:relative;height:min(74vh,640px);user-select:none;-webkit-user-select:none;touch-action:none}
+.stage{position:relative;height:min(74vh,640px);user-select:none;-webkit-user-select:none;touch-action:pan-y;max-width:100%}
 .hint{position:absolute;top:-4px;left:6%;font-size:19px;color:var(--tx3);transform:rotate(-4deg);z-index:1}
 .hint::after{content:'';display:block;width:70px;height:1px;background:var(--tx3);margin:2px auto 0;opacity:.5}
-.draggable{position:absolute;left:0;top:0;cursor:grab;will-change:transform;z-index:5}
+.draggable{position:absolute;left:0;top:0;cursor:grab;will-change:transform;z-index:5;touch-action:pan-y}
 .draggable:active{cursor:grabbing}
 .dragging{transition:none!important}
 .floaty>.in{animation:bob 7s ease-in-out infinite}
@@ -223,6 +223,17 @@ footer a.fl:hover{color:var(--lav)}
 .rv.in{opacity:1;transform:none}
 @media(prefers-reduced-motion:reduce){.rv{transition:none;opacity:1;transform:none}.floaty>.in{animation:none}}
 @media(max-width:880px){.hero h1 .ul svg{height:.26em}}
+
+/* mobile: keep every draggable inside the viewport so the page never shifts sideways */
+@media(max-width:700px){
+  .stage{height:540px}
+  .sticky{width:132px;min-height:128px;font-size:19px}
+  .draggable.s1{--x:2%!important;--y:2%!important}
+  .draggable.s2{--x:46%!important;--y:0%!important}
+  .draggable.s3{--x:42%!important;--y:56%!important}
+  .phone{width:212px}
+  .meta-row{gap:18px}
+}
 </style>
 </head>
 <body>
@@ -254,15 +265,15 @@ footer a.fl:hover{color:var(--lav)}
   <div class="stage floaty" id="stage">
     <div class="hint hand">go on, drag things &#8599;</div>
 
-    <div class="draggable" data-drag style="--x:6%;--y:16%">
+    <div class="draggable s1" data-drag style="--x:6%;--y:16%">
       <div class="in sticky y" style="--r:-5deg">buy oat milk<br>+ birthday wrapping paper!!<small>&mdash; future you</small></div>
     </div>
 
-    <div class="draggable" data-drag style="--x:64%;--y:4%">
+    <div class="draggable s2" data-drag style="--x:64%;--y:4%">
       <div class="in sticky g" style="--r:6deg">app idea:<br>notes app with<br>NO CLOUD<small>weird flex&hellip; try it</small></div>
     </div>
 
-    <div class="draggable" data-drag style="--x:58%;--y:47%">
+    <div class="draggable s3" data-drag style="--x:58%;--y:47%">
       <div class="in sticky m" style="--r:-3deg">passwords live in my head now<small>bold strategy</small></div>
     </div>
 
@@ -483,7 +494,6 @@ footer a.fl:hover{color:var(--lav)}
     }
     var inFloat=el.classList.contains('floaty');
     el.addEventListener('pointerdown',function(e){
-      e.preventDefault();
       if(inFloat)el.classList.remove('floaty');
       el.classList.add('dragging');
       el.setPointerCapture(e.pointerId);
